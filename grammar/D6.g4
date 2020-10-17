@@ -1,5 +1,9 @@
 grammar D6;
 
+source:
+    (statement NEW_LINE*)*
+;
+
 statement:
     declaration |
     expression |
@@ -7,23 +11,27 @@ statement:
 ;
 
 declaration:
-    ID '=' expression
+    ID ASSIGNMENT expression
 ;
 
 expression:
-    (USE_EDGE)? VALUE (OPERATOR VALUE)*
+    (USE_EDGE)? value (OPERATOR value)*
+;
+
+value :
+    NUMBER | ID
 ;
 
 USE_EDGE:
     U S E E D G E // case insensitive
 ;
 
-OPERATOR:
-    '+' | '-'
+ASSIGNMENT:
+    '='
 ;
 
-VALUE : 
-    NUMBER | ID
+OPERATOR:
+    '+' | '-'
 ;
 
 NUMBER:
@@ -31,7 +39,11 @@ NUMBER:
 ;
 
 ID:
-    [a-z]+
+    [a-zA-Z]+
+;
+
+NEW_LINE:
+    ([\r])?[\n]
 ;
 
 WS:
