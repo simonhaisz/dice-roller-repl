@@ -1,0 +1,12 @@
+Agility = 4
+Firearms = 3
+Longarms = 5
+Shoot = Agility + Firearms
+AimedShot = Agility + Firearms + 2
+SniperShot = Agility + Firearms + 4
+Shoot
+Shoot
+Shoot
+AimedShot
+UseEdge
+UseEdge SniperShot
