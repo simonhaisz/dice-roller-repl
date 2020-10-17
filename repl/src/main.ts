@@ -6,7 +6,9 @@ import { DiceRollEngine } from "./engine";
 const engine = new DiceRollEngine();
 
 const rl = createInterface({
-    input: process.stdin
+    input: process.stdin,
+    output: process.stdout,
+    prompt: ""
 });
 
 rl.on("line", (line) => {
@@ -19,17 +21,28 @@ rl.on("line", (line) => {
         rl.close();
         return;
     }
-    engine.execute(line);
-    const dice = engine.getDice();
-    console.log(`[${dice.join(", ")}]`);
-    const result = engine.getResult();
-    const outputHits = (hits: number) => `${hits} hit${hits !== 1 ? "s" : ""}`;
-    if (result.criticalGlitch) {
-        console.log(colors.red(`CRITICAL GLITCH`));
-    } else if (result.glitch) {
-        console.warn(colors.yellow(`GLITCH with ${outputHits(result.hits)}`));
-    } else {
-        console.log(colors.green(outputHits(result.hits)));
+    try {
+        const diceRolled = engine.execute(line);
+        if (diceRolled) {
+            const dice = engine.getDice();
+            console.log(`[${dice.join(", ")}]`);
+            const result = engine.getResult();
+            const outputHits = (hits: number) => `${hits} hit${hits !== 1 ? "s" : ""}`;
+            if (result.criticalGlitch) {
+                console.log(colors.red(`CRITICAL GLITCH`));
+            } else if (result.glitch) {
+                console.log(colors.yellow(`GLITCH with ${outputHits(result.hits)}`));
+            } else {
+                console.log(colors.green(outputHits(result.hits)));
+            }
+            console.log();
+        }
+    } catch (error) {
+        if (error.message.startsWith("No declaration found with name")) {
+            console.log(error.message);
+            console.log();
+        } else {
+            throw error;
+        }
     }
-    console.log();
 });

@@ -5,20 +5,22 @@ import { assert } from "console";
 import { DicePool } from "./dice-pool";
 import { DiceRollResult, getDiceRollResult } from "./dice-roll-result";
 import { D6Lexer } from "./grammar/D6Lexer";
-import { D6Parser, ExpressionContext, StatementContext, ValueContext } from "./grammar/D6Parser";
+import { D6Parser, DeclarationContext, ExpressionContext, StatementContext, ValueContext } from "./grammar/D6Parser";
 
 export class DiceRollEngine {
     private dicePool: DicePool;
     private lines: string[];
+    private declarations: Map<string,ExpressionContext>;
 
     constructor() {
         this.dicePool = new DicePool();
         this.lines = [];
+        this.declarations = new Map<string,ExpressionContext>();
     }
 
-    execute(line: string) {
+    execute(line: string): boolean {
         this.lines.push(line);
-        this.evaluate(this.parse(line));
+        return this.evaluate(this.parse(line));
     }
 
     getDice(): number[] {
@@ -39,11 +41,14 @@ export class DiceRollEngine {
         return statement;
     }
 
-    private evaluate(statement: StatementContext) {
+    private evaluate(statement: StatementContext): boolean {
         if (statement.declaration() !== undefined) {
-            fail(`statement declarations are not implemented`);
+            this.evaluateDeclaration(statement.declaration()!);
+            return false;
         } else if (statement.expression() !== undefined) {
-            this.evaluateExpression(statement.expression()!);
+            const count = this.evaluateExpression(statement.expression()!);
+            this.dicePool.roll(count);
+            return true;
         } else if (statement.USE_EDGE() !== undefined) {
             fail(`statement USEEDGE is not implemented`);
         } else {
@@ -51,7 +56,12 @@ export class DiceRollEngine {
         }
     }
 
-    private evaluateExpression(expression: ExpressionContext) {
+    private evaluateDeclaration(declaration: DeclarationContext) {
+        const name = declaration.ID().text;
+        this.declarations.set(name.toLowerCase(), declaration.expression());
+    }
+
+    private evaluateExpression(expression: ExpressionContext): number {
         if (expression.USE_EDGE()) {
             fail(`expression USEEDGE is not implemented`);
         }
@@ -69,21 +79,26 @@ export class DiceRollEngine {
             const n = this.parseValue(value);
             if (operator === undefined) {
                 count = n;
-            } else if (operator.symbol.text === '+') {
+            } else if (operator.text === '+') {
                 count += n;
-            } else if (operator.symbol.text === '-') {
+            } else if (operator.text === '-') {
                 count -= n;
             } else {
                 fail(`unknown operator: is not a + or -`);
             }
         }
 
-        this.dicePool.roll(count);
+        return count;
     }
 
     private parseValue(v: ValueContext): number {
         if (v.ID() !== undefined) {
-            fail(`declarations are not implemented`);
+            const name = v.ID()!.text;
+            const expression = this.declarations.get(name.toLowerCase());
+            if (expression === undefined) {
+                throw new Error(`No declaration found with name '${name}'`);
+            }
+            return this.evaluateExpression(expression);
         } else if (v.NUMBER() !== undefined) {
             return this.parseNumber(v.NUMBER()!);
         } else {
@@ -92,6 +107,6 @@ export class DiceRollEngine {
     }
 
     private parseNumber(n: TerminalNode): number {
-        return Number.parseInt(n.symbol.text!);
+        return Number.parseInt(n.text!);
     }
 }
