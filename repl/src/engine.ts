@@ -3,6 +3,7 @@ import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { fail } from "assert";
 import { assert } from "console";
 import { DicePool } from "./dice-pool";
+import { DiceRollResult, getDiceRollResult } from "./dice-roll-result";
 import { D6Lexer } from "./grammar/D6Lexer";
 import { D6Parser, ExpressionContext, StatementContext, ValueContext } from "./grammar/D6Parser";
 
@@ -20,8 +21,12 @@ export class DiceRollEngine {
         this.evaluate(this.parse(line));
     }
 
-    getResult(): number[] {
+    getDice(): number[] {
         return this.dicePool.getDice();
+    }
+
+    getResult(): DiceRollResult {
+        return getDiceRollResult(this.dicePool.getDice());
     }
 
     private parse(line: string): StatementContext {
