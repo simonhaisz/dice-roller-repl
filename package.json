@@ -1,0 +1,17 @@
+{
+    "name": "dice-roller-repl",
+    "description": "A 'language' with tooling to roll D6s",
+    "version": "0.1.0",
+    "author": "Simon Haisz",
+    "license": "MIT",
+    "scripts": {
+        "compile": "tsc -b",
+        "watch": "tsc -b -w",
+        "postinstall": "cd repl && npm install && cd ..",
+        "repl": "node repl/dist/main"
+    },
+    "devDependencies": {
+        "typescript": "^4.0.3",
+        "@types/node": "^12.12.68"
+    }
+}
