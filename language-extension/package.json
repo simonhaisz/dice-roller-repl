@@ -1,0 +1,51 @@
+{
+    "name": "d6-language-extension",
+    "description": "VSCode extension for d6 language tools",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.50.0"
+    },
+	"activationEvents": [
+		"onLanguage:d6"
+    ],
+    "main": "./client/dist/extension",
+    "contributes": {
+        "configuration": {
+            "title": "D6 Dice Rolling Language options",
+            "properties": {
+                "d6language.nameCaseRule": {
+                    "scope": "window",
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "lowercase",
+                        "uppercase",
+                        "camelcase"
+                    ],
+                    "default": "off",
+                    "description": "Controls validation of the casing of declaration names"
+                }
+            }
+        },
+        "languages": [
+            {
+                "id": "d6",
+                "aliases": [
+                    "D6 Dice Rolling Language",
+                    "d6"
+                ],
+                "extensions": [
+                    ".d6"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "d6",
+                "scopeName": "source.d6",
+                "path": "./syntaxes/d6.tmLanguage.json"
+            }
+        ]
+    }
+}

@@ -16,6 +16,28 @@
                 "${workspaceFolder}/repl/dist/**/*.js"
             ],
             "console": "integratedTerminal"
-        }
-    ]
+        },
+        {
+			"type": "extensionHost",
+			"request": "launch",
+			"name": "Launch Client",
+			"runtimeExecutable": "${execPath}",
+			"args": ["--extensionDevelopmentPath=${workspaceRoot}/language-extension"],
+			"outFiles": ["${workspaceRoot}/language-extension/client/dist/**/*.js"]
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Attach to Server",
+			"port": 6009,
+			"restart": true,
+			"outFiles": ["${workspaceRoot}/language-extension/server/dist/**/*.js"]
+		}
+    ],
+	"compounds": [
+		{
+			"name": "Client + Server",
+			"configurations": ["Launch Client", "Attach to Server"]
+		}
+	]
 }

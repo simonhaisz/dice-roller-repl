@@ -1,0 +1,12 @@
+{
+    "name": "d6-language-extension-client",
+    "description": "Language server for d6 language tools",
+    "version": "0.1.0",
+    "engines": {
+        "node": "*"
+    },
+    "dependencies": {
+        "vscode-languageserver": "^6.1.1",
+        "vscode-languageserver-textdocument": "^1.0.1"
+    }
+}

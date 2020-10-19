@@ -7,7 +7,7 @@
     "scripts": {
         "compile": "tsc -b",
         "watch": "tsc -b -w",
-        "postinstall": "cd repl && npm install && cd ..",
+        "postinstall": "cd repl && npm install && cd ../language-extension/client && npm install && cd ../server && npm install && cd ../..",
         "repl": "node repl/dist/main"
     },
     "devDependencies": {

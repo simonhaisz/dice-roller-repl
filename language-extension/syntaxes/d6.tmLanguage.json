@@ -1,0 +1,46 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "D6 Dice Rolling Language",
+    "patterns": [
+        {
+            "include": "#variables"
+        },
+        {
+            "include": "#constants"
+        },
+        {
+            "include": "#operators"
+        }
+    ],
+    "repository": {
+        "variables": {
+            "patterns": [
+                {
+                    "name": "variable.parameter",
+                    "match": "\\$(\\w*!)?\\w+"
+                }
+            ]
+        },
+        "constants": {
+            "patterns": [
+                {
+                    "name": "constant.numeric",
+                    "match": "\\d+"
+                }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "name": "keyword.operator.assignment.d6",
+                    "match": "\\="
+                },
+                {
+                    "name": "keyword.operator.arithmetic.d6",
+                    "match": "\\+|\\-"
+                }
+            ]
+        }
+    },
+    "scopeName": "source.d6"
+}
