@@ -3,6 +3,7 @@ import {
     createConnection, Diagnostic, DidChangeConfigurationNotification, InitializeParams, InitializeResult, ProposedFeatures, TextDocuments, TextDocumentSyncKind
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { DiceParseEngine } from "./engine";
 
 let connection = createConnection(ProposedFeatures.all);
 
@@ -103,9 +104,12 @@ documents.onDidChangeContent(change => {
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     let settings = await getDocumentSettings(textDocument.uri);
 
-    let diagnostics: Diagnostic[] = [];
-
     // do some antlr stuff
+    const text = textDocument.getText();
+
+    const engine = new DiceParseEngine(text);
+
+    const diagnostics = engine.getDiagnostics();
 
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
