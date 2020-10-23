@@ -26,7 +26,7 @@ export class DiceParseEngine {
             } else if (statement.USE_EDGE() !== undefined) {
                 fail(`UseEdge is not implemented`);
             } else {
-                fail(`Unknown statement: `);
+                fail(`Unknown statement`);
             }
         }
 

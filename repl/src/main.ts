@@ -1,14 +1,26 @@
 import { EOL } from "os";
 import colors from "colors";
-import { createInterface } from "readline";
+import { createInterface, Interface } from "readline";
 import { DiceRollEngine } from "./engine";
+
+let rl: Interface | undefined;
 
 const engine = new DiceRollEngine();
 
-const rl = createInterface({
+const completer = (line: string): any => {
+    if (rl === undefined) {
+        return [[], line];
+    }
+    const completions = engine.getCompletions(line, rl.cursor);
+
+    return[completions.matches, completions.sourceSymbol];
+};
+
+rl = createInterface({
     input: process.stdin,
     output: process.stdout,
-    prompt: ""
+    prompt: "",
+    completer
 });
 
 rl.on("line", (line) => {

@@ -1,4 +1,5 @@
-import { CharStreams, CommonTokenStream } from "antlr4ts";
+import { CharStreams, CommonTokenStream, ParserRuleContext } from "antlr4ts";
+import { ParseTree } from "antlr4ts/tree/ParseTree";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { fail } from "assert";
 import { assert } from "console";
@@ -6,6 +7,11 @@ import { DicePool } from "./dice-pool";
 import { DiceRollResult, getDiceRollResult } from "./dice-roll-result";
 import { D6Lexer } from "./grammar/D6Lexer";
 import { D6Parser, DeclarationContext, ExpressionContext, StatementContext, ValueContext } from "./grammar/D6Parser";
+
+export type Completions = {
+    matches: string[];
+    sourceSymbol: string;
+}
 
 export class DiceRollEngine {
     private dicePool: DicePool;
@@ -31,13 +37,41 @@ export class DiceRollEngine {
         return getDiceRollResult(this.dicePool.getDice());
     }
 
+    getCompletions(line: string, cursor: number): Completions {
+        const ast = this.parse(line);
+        const leafContext = findLeafContext(ast, cursor);
+        if (leafContext === undefined) {
+            return {
+                matches: [],
+                sourceSymbol: line
+            };
+        }
+        const matches: string[] = [];
+        const sourceSymbol = leafContext.text;
+        if (leafContext instanceof ValueContext) {
+            const valueContext = leafContext as ValueContext;
+            if (valueContext.ID() != undefined) {
+                const id = valueContext.ID().text;
+                for (const name of this.declarations.keys()) {
+                    if (name.toLowerCase().startsWith(id.toLowerCase())) {
+                        matches.push(name);
+                    }
+                }
+            }
+        }
+
+        return {
+            matches,
+            sourceSymbol
+        };
+    }
+
     private parse(line: string): StatementContext {
         const inputStream = CharStreams.fromString(line);
         const lexer = new D6Lexer(inputStream);
         const tokenStream = new CommonTokenStream(lexer);
         const parser = new D6Parser(tokenStream);
         const statement = parser.statement();
-        assert(statement !== undefined, `A D6 line should always be parsed to a statement`);
         return statement;
     }
 
@@ -109,4 +143,28 @@ export class DiceRollEngine {
     private parseNumber(n: TerminalNode): number {
         return Number.parseInt(n.text!);
     }
+}
+
+function findLeafContext(parent: ParseTree, cursor: number): ParserRuleContext | undefined {
+    const parentContext = parent as ParserRuleContext;
+    // TODO:
+    // figure out why charPositionInLine is always zero here, when it works in the language-server project
+    // until then, use start/stop index which does work for some reason
+    if (parentContext.start.startIndex > cursor || parentContext.stop.stopIndex + 1 < cursor) {
+        return undefined;
+    }
+    if (parentContext.children === undefined) {
+        return parentContext;
+    }
+    for (const child of parentContext.children) {
+        if (child instanceof TerminalNode) {
+            continue;
+        }
+        const childContext = child as ParserRuleContext;
+        if (childContext.start.startIndex <= cursor && childContext.stop.stopIndex + 1 >= cursor) {
+            return findLeafContext(child, cursor);
+        }
+    }
+    // within range of the parent but not within range of any non-terminal children - use the parent
+    return parentContext;
 }
