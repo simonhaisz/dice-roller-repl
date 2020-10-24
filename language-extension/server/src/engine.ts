@@ -24,7 +24,7 @@ export class DiceParseEngine {
             } else if (statement.expression() !== undefined) {
                 this.processExpression(statement.expression()!, declarationNames, diagnostics);
             } else if (statement.USE_EDGE() !== undefined) {
-                fail(`UseEdge is not implemented`);
+                // nothing to do in this case
             } else {
                 fail(`Unknown statement`);
             }
@@ -41,7 +41,7 @@ export class DiceParseEngine {
 
     private processExpression(expression: ExpressionContext, declarationNames: string[], diagnostics: Diagnostic[]) {
         if (expression.USE_EDGE() !== undefined) {
-            fail(`UseEdge is not implemented`);
+            // nothing to do in this case
         }
         for (const value of expression.value()) {
             if (value.ID() !== undefined) {

@@ -1,23 +1,37 @@
-import { rollDice, rollDie } from "./dice-roller";
+import { rollDice, rollDie, rollExplodingDice } from "./dice-roller";
 
 export class DicePool {
     private dice: number[];
+    private explodeDice: boolean;
 
     constructor() {
         this.dice = [];
+        this.explodeDice = false;
     }
 
     roll(count: number) {
-        this.dice = rollDice(count);
+        if (this.explodeDice) {
+            this.dice = rollExplodingDice(count);
+        } else {
+            this.dice = rollDice(count);
+        }
     }
 
-    reRoll(predicate: (die: number) => boolean) {
+    reRollFailures() {
+        this.reRoll(d => d < 5);
+    }
+
+    private reRoll(predicate: (die: number) => boolean) {
         for (let i = 0; i < this.dice.length; i++) {
             const d = this.dice[i];
             if (predicate(d)) {
                 this.dice[i] = rollDie();
             }
         }
+    }
+
+    toggleExplodingDice(toggle: boolean) {
+        this.explodeDice = toggle;
     }
 
     getDice(): number[] {

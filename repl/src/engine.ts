@@ -25,8 +25,14 @@ export class DiceRollEngine {
     }
 
     execute(line: string): boolean {
-        this.lines.push(line);
-        return this.evaluate(this.parse(line));
+        try {
+            this.lines.push(line);
+            return this.evaluate(this.parse(line));
+        } finally {
+            // using edge should only apply to the current roll
+            // especially if edge is only used in a declaration
+            this.dicePool.toggleExplodingDice(false);
+        }
     }
 
     getDice(): number[] {
@@ -84,7 +90,8 @@ export class DiceRollEngine {
             this.dicePool.roll(count);
             return true;
         } else if (statement.USE_EDGE() !== undefined) {
-            fail(`statement USEEDGE is not implemented`);
+            this.dicePool.reRollFailures();
+            return true;
         } else {
             fail(`unknown statement: is not a declaration, an expression, or USEEDGE`);
         }
@@ -97,7 +104,7 @@ export class DiceRollEngine {
 
     private evaluateExpression(expression: ExpressionContext): number {
         if (expression.USE_EDGE()) {
-            fail(`expression USEEDGE is not implemented`);
+            this.dicePool.toggleExplodingDice(true);
         }
         let count = NaN;
         const values = expression.value();
