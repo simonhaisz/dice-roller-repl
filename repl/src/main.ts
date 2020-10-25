@@ -3,6 +3,7 @@ import colors from "colors";
 import { createInterface, Interface } from "readline";
 import { DiceRollEngine, isRollResult, isTestResult } from "./engine";
 import { fail } from "assert";
+import { loadFile } from "./file-loader";
 
 let rl: Interface | undefined;
 
@@ -29,9 +30,23 @@ rl.on("line", (line) => {
         // ignore empty input
         return;
     }
-    if (line.toLowerCase().trim() === "exit") {
+    if (/^\s*exit\s*$/i.test(line)) {
         console.log("exiting...");
         rl.close();
+        return;
+    }
+    if (/^\s*load-file\s+/i.test(line)) {
+        const match = /^\s*load-file\s+(?<filepath>.*)\s*$/i.exec(line);
+        if (match == undefined) {
+            fail(`Line matched with the test regex but not the exec regex: ${line}`);
+        }
+        const filePath = match.groups["filepath"];
+        if (filePath === undefined || filePath.length === 0) {
+            console.log(colors.red(`no file specified to be loaded: ${line}`));
+            return;
+        }
+        const lines = loadFile(filePath);
+        engine.loadLines(lines);
         return;
     }
     try {

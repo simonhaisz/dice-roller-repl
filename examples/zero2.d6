@@ -1,0 +1,8 @@
+Logic = 7
+Electronics = 5
+Cracking = 5
+Exploit = 6
+Browse = 6
+Hacking = Cracking + Exploit + 2
+Search = Electronics + Browse
+Software = Electronics + Logic

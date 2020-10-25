@@ -36,8 +36,16 @@ export class DiceRollEngine {
         }
     }
 
-    getDiceRolls(): number[][] {
-        return this.dicePool.getDiceRolls();
+    loadLines(lines: string[]) {
+        for (const line of lines) {
+            this.lines.push(line);
+            const statement = this.parse(line);
+            if (statement.declaration() !== undefined) {
+                this.evaluateDeclaration(statement.declaration());
+            } else {
+                // ignore non-declarations when loading from a file
+            }
+        }
     }
 
     getCompletions(line: string, cursor: number): Completions {
