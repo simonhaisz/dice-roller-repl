@@ -7,6 +7,10 @@ import { SourceContext } from "./D6Parser";
 import { StatementContext } from "./D6Parser";
 import { DeclarationContext } from "./D6Parser";
 import { ExpressionContext } from "./D6Parser";
+import { TestContext } from "./D6Parser";
+import { SuccessTestContext } from "./D6Parser";
+import { OpposedTestContext } from "./D6Parser";
+import { ExtendedTestContext } from "./D6Parser";
 import { ValueContext } from "./D6Parser";
 
 
@@ -45,6 +49,34 @@ export interface D6Visitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitExpression?: (ctx: ExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `D6Parser.test`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitTest?: (ctx: TestContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `D6Parser.successTest`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSuccessTest?: (ctx: SuccessTestContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `D6Parser.opposedTest`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitOpposedTest?: (ctx: OpposedTestContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `D6Parser.extendedTest`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitExtendedTest?: (ctx: ExtendedTestContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `D6Parser.value`.

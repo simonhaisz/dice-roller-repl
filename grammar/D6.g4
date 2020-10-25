@@ -6,6 +6,7 @@ source:
 
 statement:
     declaration |
+    test |
     expression |
     USE_EDGE
 ;
@@ -18,8 +19,30 @@ expression:
     (USE_EDGE)? value (OPERATOR value)*
 ;
 
+test:
+    successTest |
+    opposedTest |
+    extendedTest
+;
+
+successTest:
+    expression '(' threshold=NUMBER ')'
+;
+
+opposedTest:
+    left=expression 'vs' right=expression
+;
+
+extendedTest:
+    expression '(' threshold=NUMBER ')' EXTENDED
+;
+
 value :
     NUMBER | ID
+;
+
+EXTENDED:
+    E X T E N D E D // case insensitive
 ;
 
 USE_EDGE:

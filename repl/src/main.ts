@@ -1,7 +1,8 @@
 import { EOL } from "os";
 import colors from "colors";
 import { createInterface, Interface } from "readline";
-import { DiceRollEngine } from "./engine";
+import { DiceRollEngine, isRollResult, isTestResult } from "./engine";
+import { fail } from "assert";
 
 let rl: Interface | undefined;
 
@@ -34,20 +35,47 @@ rl.on("line", (line) => {
         return;
     }
     try {
-        const diceRolled = engine.execute(line);
-        if (diceRolled) {
-            const dice = engine.getDice();
-            console.log(`[${dice.join(", ")}]`);
-            const result = engine.getResult();
-            const outputHits = (hits: number) => `${hits} hit${hits !== 1 ? "s" : ""}`;
-            if (result.criticalGlitch) {
-                console.log(colors.red(`CRITICAL GLITCH`));
-            } else if (result.glitch) {
-                console.log(colors.yellow(`GLITCH with ${outputHits(result.hits)}`));
+        const result = engine.execute(line);
+        if (result === undefined) {
+            return;
+        }
+        const hitsOuput = outputHits(result.hits);
+        if (isTestResult(result)) {
+            if (result.success) {
+                if (result.glitch) {
+                    if (result.criticalSuccess) {
+                        console.log(colors.yellow(`${hitsOuput} GLITCH CRITICAL SUCCESS`));
+                    } else {
+                        console.log(colors.yellow(`${hitsOuput} GLITCH SUCCESS`));
+                    }
+                } else {
+                    if (result.criticalSuccess) {
+                        console.log(colors.green(`${hitsOuput} CRITICAL SUCCESS`));
+                    } else {
+                        console.log(colors.green(`${hitsOuput} SUCCESS`));
+                    }
+                }
             } else {
-                console.log(colors.green(outputHits(result.hits)));
+                if (result.criticalGlitch) {
+                    console.log(colors.red(`${hitsOuput} CRITICAL GLITCH FAILURE`));
+                } else if (result.glitch) {
+                    console.log(colors.yellow(`${hitsOuput} GLITCH FAILURE`));
+                } else {
+                    console.log(colors.yellow(`${hitsOuput} FAILURE`));
+                }
             }
             console.log();
+        } else if (isRollResult(result)) {
+            if (result.criticalGlitch) {
+                console.log(colors.red(`${hitsOuput} CRITICAL GLITCH`));
+            } else if (result.glitch) {
+                console.log(colors.yellow(`${hitsOuput} GLITCH`));
+            } else {
+                console.log(colors.green(hitsOuput));
+            }
+            console.log();
+        } else {
+            fail(`Unknown result: ${JSON.stringify(result)}`);
         }
     } catch (error) {
         if (error.message.startsWith("No declaration found with name")) {
@@ -58,3 +86,7 @@ rl.on("line", (line) => {
         }
     }
 });
+
+function outputHits(hits: number): string {
+    return `${hits} hit${hits !== 1 ? "s" : ""}`;
+}
